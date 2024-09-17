@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("org.lighthousegames:logging:1.5.0")
 }
 
 tasks.test {
