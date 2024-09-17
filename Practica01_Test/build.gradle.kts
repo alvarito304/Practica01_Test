@@ -10,8 +10,12 @@ repositories {
 }
 
 dependencies {
+    //Test
     testImplementation(kotlin("test"))
+
+    //Logger
     implementation("org.lighthousegames:logging:1.5.0")
+    implementation("ch.qos.logback:logback-classic:1.5.8")
 }
 
 tasks.test {

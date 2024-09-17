@@ -1,6 +1,6 @@
 package org.example.clientes.model
 
 data class Tarjeta(
-    var numero: Int,
+    var numero: String,
     var fechaCaducidad: String
 )
