@@ -5,6 +5,10 @@ import java.util.*
 
 class CacheClienteImpl() : ICacheCliente {
     private val cache: MutableMap<UUID, Cliente> = mutableMapOf()
+    override fun getByDni(dni: String): Cliente? {
+        return cache.values.firstOrNull { it.dni == dni }
+    }
+
     override fun get(key: UUID): Cliente? {
         return cache[key]
     }
