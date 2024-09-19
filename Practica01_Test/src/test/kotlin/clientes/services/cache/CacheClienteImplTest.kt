@@ -226,4 +226,30 @@ class CacheClienteImplTest {
         //assert
         assertEquals(1, result)
     }
+
+    @Test
+    fun getByDni() {
+        //arrange
+        cache.put(cliente.id, cliente)
+        //act
+        val result = cache.getByDni(cliente.dni)
+        //assert
+        assertAll(
+            { assert(result == cliente) },
+            { assert(cache.size() == 1) },
+            { assertNotNull(result) }
+        )
+    }
+    @Test
+    fun getByDniNotFound() {
+        //arrange
+        cache.put(cliente.id, cliente)
+        //act
+        val result = cache.getByDni("123")
+        //assert
+        assertAll(
+            { assert(result == null) },
+            { assert(cache.size() == 1) }
+        )
+    }
 }
