@@ -1,4 +1,4 @@
-package org.example.clientes.validator
+package org.example.clientes.validator.validadorCliente
 
 import org.example.clientes.exceptions.CuentaBancariaException
 import org.example.clientes.exceptions.DniException

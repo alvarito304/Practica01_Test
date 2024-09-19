@@ -1,17 +1,10 @@
 package org.example.clientes.services
 
-import org.example.clientes.exceptions.CuentaBancariaException
-import org.example.clientes.exceptions.DniException
 import org.example.clientes.exceptions.PersonaException
-import org.example.clientes.exceptions.TarjetaCreditoException
 import org.example.clientes.model.Cliente
-import org.example.clientes.model.Tarjeta
 import org.example.clientes.repository.IClientesRepository
 import org.example.clientes.services.cache.ICacheCliente
-import org.example.clientes.validator.ValidadorCliente
-import org.example.clientes.validator.validadorCuentaBancaria.ValidadorCuentaBancaria
-import org.example.clientes.validator.validadorDniNif.ValidadorDniNif
-import org.example.clientes.validator.validadorTarjeta.ValidadorTarjeta
+import org.example.clientes.validator.validadorCliente.ValidadorCliente
 import org.lighthousegames.logging.logging
 import java.util.*
 

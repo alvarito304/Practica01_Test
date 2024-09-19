@@ -34,6 +34,8 @@ object ValidadorTarjeta {
 
     fun esFechaValida(fechaCaducidad: String): Boolean {
         if (!fechaCaducidad.matches(fechaPattern)) return false
+        val guardarMes = fechaCaducidad.substring(0, 2)
+        if (guardarMes.toInt() > 12 || guardarMes.toInt() < 1) return false
 
         val formato = DateTimeFormatter.ofPattern("MM/yy")
         val fechaExpiracion = YearMonth.parse(fechaCaducidad, formato)
