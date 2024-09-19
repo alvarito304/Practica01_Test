@@ -9,7 +9,7 @@ class ValidadorDniNifTest {
 
     @Test
     fun esValido() {
-        //assert
+        //arrange
         val dni = "12345678Z"
         //act
         val result = ValidadorDniNif.esValido(dni)
@@ -18,7 +18,7 @@ class ValidadorDniNifTest {
     }
     @Test
     fun esValidoFormatoIncorrecto(){
-        //assert
+        //arrange
         val dni = "2345678Z"
         //act
         val result = ValidadorDniNif.esValido(dni)
@@ -28,7 +28,7 @@ class ValidadorDniNifTest {
 
     @Test
     fun esValidoLetraX(){
-        //assert
+        //arrange
         val dni = "X1234567L"
         //act
         val result = ValidadorDniNif.esValido(dni)
@@ -37,7 +37,7 @@ class ValidadorDniNifTest {
     }
     @Test
     fun esValidoLetraY(){
-        //assert
+        //arrange
         val dni = "Y1234567X"
         //act
         val result = ValidadorDniNif.esValido(dni)
@@ -46,7 +46,7 @@ class ValidadorDniNifTest {
 
     }@Test
     fun esValidoLetraZ(){
-        //assert
+        //arrange
         val dni = "Z1234567R"
         //act
         val result = ValidadorDniNif.esValido(dni)
@@ -55,7 +55,7 @@ class ValidadorDniNifTest {
     }
     @Test
     fun esValidoLetraIncorrecta(){
-        //assert
+        //arrange
         val dni = "X1234567M"
         //act
         val result = ValidadorDniNif.esValido(dni)
@@ -64,7 +64,7 @@ class ValidadorDniNifTest {
     }
     @Test
     fun esValidoNifFormatoInvalido(){
-        //assert
+        //arrange
         val dni = "X123567L"
         //act
         val result = ValidadorDniNif.esValido(dni)
