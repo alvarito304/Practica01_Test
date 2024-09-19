@@ -1,9 +1,17 @@
 package org.example.clientes.services
 
+import org.example.clientes.exceptions.CuentaBancariaException
+import org.example.clientes.exceptions.DniException
 import org.example.clientes.exceptions.PersonaException
+import org.example.clientes.exceptions.TarjetaCreditoException
 import org.example.clientes.model.Cliente
+import org.example.clientes.model.Tarjeta
 import org.example.clientes.repository.IClientesRepository
 import org.example.clientes.services.cache.ICacheCliente
+import org.example.clientes.validator.ValidadorCliente
+import org.example.clientes.validator.validadorCuentaBancaria.ValidadorCuentaBancaria
+import org.example.clientes.validator.validadorDniNif.ValidadorDniNif
+import org.example.clientes.validator.validadorTarjeta.ValidadorTarjeta
 import org.lighthousegames.logging.logging
 import java.util.*
 
@@ -36,8 +44,14 @@ class ClientesServiceImpl(private val cache: ICacheCliente, private val reposito
     }
 
     override fun saveCliente(cliente: Cliente): Cliente {
+        logger.debug{"Validando cliente: $cliente"}
+        if (!ValidadorCliente.esValido(cliente)) throw PersonaException.PersonaNotSavedException()
         logger.debug{"Guardando cliente en el repositorio: $cliente"}
         val clienteSaved = repository.save(cliente)
+        if (clienteSaved == null) {
+            logger.error{"No se ha podido guardar el cliente"}
+            throw PersonaException.PersonaNotSavedException()
+        }
         logger.info{"cliente guardado: $clienteSaved"}
         return clienteSaved
     }
@@ -47,6 +61,7 @@ class ClientesServiceImpl(private val cache: ICacheCliente, private val reposito
         cache.remove(id)
         val result = repository.update(id, cliente)
         if (result == null) {
+            logger.error{"No se ha podido actualizar el cliente con id: $id"}
             throw PersonaException.PersonaNotUpdatedException(id.toString())
         }
         logger.info{"cliente actualizado: $result"}
@@ -57,10 +72,10 @@ class ClientesServiceImpl(private val cache: ICacheCliente, private val reposito
         logger.debug { "Eliminando cliente con id: $id" }
         val result = repository.delete(id)
         if (result == null) {
+            logger.error{"No se ha podido eliminar el cliente con id: $id"}
             throw PersonaException.PersonaNotDeletedException(id.toString())
         }
         logger.info{"cliente eliminado: $result"}
         return result
     }
-
 }
