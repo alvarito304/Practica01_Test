@@ -26,7 +26,6 @@ object ValidadorCuentaBancaria {
         // Generar el número completo para el cálculo del control
         val numeroGenerado = codigoEntidad + numeroCuenta + ibanCountryValues[countryCode] + "00"
         val numeroGeneradoBigInt = numeroGenerado.toBigInteger()
-        println(numeroGeneradoBigInt)
 
         // Cálculo del dígito de control
         val restoDe97 = numeroGeneradoBigInt % BigInteger.valueOf(97)
