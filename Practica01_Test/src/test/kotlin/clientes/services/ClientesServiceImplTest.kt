@@ -1,12 +1,17 @@
 package clientes.services
 
+import org.example.clientes.exceptions.CuentaBancariaException
+import org.example.clientes.exceptions.DniException
 import org.example.clientes.exceptions.PersonaException
+import org.example.clientes.exceptions.TarjetaCreditoException
 import org.example.clientes.model.Cliente
 import org.example.clientes.model.CuentaBancaria
 import org.example.clientes.model.Tarjeta
 import org.example.clientes.repository.IClientesRepository
 import org.example.clientes.services.ClientesServiceImpl
 import org.example.clientes.services.cache.ICacheCliente
+import org.example.clientes.validator.validadorCliente.ValidadorCliente
+import org.example.clientes.validator.validadorDniNif.ValidadorDniNif
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -16,7 +21,6 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.atLeast
-import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.time.LocalDateTime
@@ -29,6 +33,9 @@ class ClientesServiceImplTest {
 
     @Mock
     private lateinit var cache: ICacheCliente
+
+    @Mock
+    private lateinit var validadorCliente: ValidadorCliente
 
     @InjectMocks
     private lateinit var clientesServiceImpl: ClientesServiceImpl
@@ -121,6 +128,7 @@ class ClientesServiceImplTest {
     fun saveCliente() {
         //arrange
         whenever(clientesRepositoryImpl.save(cliente1)).thenReturn(cliente1)
+        whenever(validadorCliente.esValido(cliente1)).thenReturn(true)
         //act
         val result = clientesServiceImpl.saveCliente(cliente1)
         //assert
@@ -140,6 +148,147 @@ class ClientesServiceImplTest {
         //verify
         verify(atLeast(1)){clientesRepositoryImpl.save(cliente1)}
     }
+
+    @Test
+    fun saveClienteWithInvalidName() {
+        //arrange
+        val clienteNombreInvalido = Cliente(
+            UUID.randomUUID(),
+            "J",
+            "50378911X",
+            cuentaBancaria = CuentaBancaria(
+                "ES3701281234567812345678",
+                100.0),
+            tarjeta = Tarjeta(
+                "4111-1111-1111-1111",
+                "09/27"),
+            LocalDateTime.now(),
+            LocalDateTime.now()
+        )
+        whenever(validadorCliente.esValido(clienteNombreInvalido)).thenReturn(false)
+        //assert
+        assertThrows<PersonaException.PersonaNotSavedException> { clientesServiceImpl.saveCliente(clienteNombreInvalido) }
+        //verify
+        verify(atLeast(1)){validadorCliente.esValido(clienteNombreInvalido)}
+        verify(atLeast(0)){clientesRepositoryImpl.save(clienteNombreInvalido)}
+
+    }
+
+    @Test
+    fun saveClienteWithInvalidDni() {
+        //arrange
+        val clienteDniInvalido = Cliente(
+            UUID.randomUUID(),
+            "John",
+            "50378911X1",
+            cuentaBancaria = CuentaBancaria(
+                "ES3701281234567812345678",
+                100.0),
+            tarjeta = Tarjeta(
+                "4111-1111-1111-1111",
+                "09/27"),
+            LocalDateTime.now(),
+            LocalDateTime.now()
+        )
+        whenever(validadorCliente.esValido(clienteDniInvalido)).thenReturn(false)
+        //assert
+        assertThrows<DniException.DniInvalidoException> { clientesServiceImpl.saveCliente(clienteDniInvalido) }
+        //verify
+        verify(atLeast(1)){validadorCliente.esValido(clienteDniInvalido)}
+        verify(atLeast(0)){clientesRepositoryImpl.save(clienteDniInvalido)}
+    }
+    @Test
+    fun saveClienteWithInvalidCuentaBancariaIban() {
+        //arrange
+        val clienteCuentaBancariaInvalida = Cliente(
+            UUID.randomUUID(),
+            "John",
+            "50378911X",
+            cuentaBancaria = CuentaBancaria(
+                "ES3701281234567812345679",
+                100.0),
+            tarjeta = Tarjeta(
+                "4111-1111-1111-1111",
+                "09/27"),
+            LocalDateTime.now(),
+            LocalDateTime.now()
+        )
+        //assert
+        assertThrows<CuentaBancariaException.CuentaBancariaIbanErrorException> { clientesServiceImpl.saveCliente(clienteCuentaBancariaInvalida) }
+        //verify
+        verify(atLeast(1)){validadorCliente.esValido(clienteCuentaBancariaInvalida)}
+        verify(atLeast(0)){clientesRepositoryImpl.save(clienteCuentaBancariaInvalida)}
+    }
+
+    @Test
+    fun saveClienteWithInvalidCuentaBancariaSaldo() {
+        //arrange
+        val clienteCuentaBancariaSaldoInvalido = Cliente(
+            UUID.randomUUID(),
+            "John",
+            "50378911X",
+            cuentaBancaria = CuentaBancaria(
+                "ES3701281234567812345678",
+                -100.0),
+            tarjeta = Tarjeta(
+                "4111-1111-1111-1111",
+                "09/27"),
+            LocalDateTime.now(),
+            LocalDateTime.now()
+        )
+        //assert
+        assertThrows<CuentaBancariaException.CuentaBancariaBalanceErrorException> { clientesServiceImpl.saveCliente(clienteCuentaBancariaSaldoInvalido) }
+        //verify
+        verify(atLeast(1)){validadorCliente.esValido(clienteCuentaBancariaSaldoInvalido)}
+        verify(atLeast(0)){clientesRepositoryImpl.save(clienteCuentaBancariaSaldoInvalido)}
+    }
+
+    @Test
+    fun saveClienteWithInvalidTarjetaNumero() {
+        //arrange
+        val clienteTarjetaNumeroInvalido = Cliente(
+            UUID.randomUUID(),
+            "John",
+            "50378911X",
+            cuentaBancaria = CuentaBancaria(
+                "ES3701281234567812345678",
+                100.0),
+            tarjeta = Tarjeta(
+                "4111-1111-1111-1112",
+                "09/27"),
+            LocalDateTime.now(),
+            LocalDateTime.now()
+        )
+        //assert
+        assertThrows<TarjetaCreditoException.TrajetaNumberErrorException> { clientesServiceImpl.saveCliente(clienteTarjetaNumeroInvalido) }
+        //verify
+        verify(atLeast(1)){validadorCliente.esValido(clienteTarjetaNumeroInvalido)}
+        verify(atLeast(0)){clientesRepositoryImpl.save(clienteTarjetaNumeroInvalido)}
+    }
+
+    @Test
+    fun saveClienteWithInvalidTarjetaCaducidad() {
+        //arrange
+        val clienteTarjetaCaducidadInvalida = Cliente(
+            UUID.randomUUID(),
+            "John",
+            "50378911X",
+            cuentaBancaria = CuentaBancaria(
+                "ES3701281234567812345678",
+                100.0),
+            tarjeta = Tarjeta(
+                "4111-1111-1111-1111",
+                "13/27"),
+            LocalDateTime.now(),
+            LocalDateTime.now()
+        )
+        //assert
+        assertThrows<TarjetaCreditoException.TrajetaDateErrorException> { clientesServiceImpl.saveCliente(clienteTarjetaCaducidadInvalida) }
+        //verify
+        verify(atLeast(1)){validadorCliente.esValido(clienteTarjetaCaducidadInvalida)}
+        verify(atLeast(0)){clientesRepositoryImpl.save(clienteTarjetaCaducidadInvalida)}
+    }
+
 
     @Test
     fun updateCliente() {
