@@ -1,5 +1,7 @@
 package org.example.clientes.repository.common
 
+import java.util.UUID
+
 interface IRepository <ID, T>{
     fun getAll(): List<T>
     fun getById(id:ID): T?
